@@ -1,7 +1,9 @@
 import argparse
+import logging
 from pathlib import Path
 
 from world_bank_pipeline.api_client import WorldBankAPIError
+from world_bank_pipeline.config import configure_logging
 from world_bank_pipeline.database import (
     DEFAULT_DATABASE_PATH,
     connect_database,
@@ -54,11 +56,27 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     
+    parser.add_argument(
+        "--log-level",
+        choices=[
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR",
+        ],
+        default="INFO",
+        help="Application logging level. Default: INFO",
+    )
+    
     return parser
 
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
+    
+    configure_logging(args.log_level)
+    
+    logger = logging.getLogger(__name__)
     
     try:
         records = fetch_indicator(
@@ -73,7 +91,7 @@ def main() -> None:
         RecordValidationError,
         ValueError,
     ) as exc:
-        print(f"Error: {exc}")
+        logger.error("%s", exc)
         return
         
     if not records:

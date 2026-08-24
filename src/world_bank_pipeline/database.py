@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 from collections.abc import Iterable
 from pathlib import Path
@@ -5,6 +6,9 @@ from pathlib import Path
 from world_bank_pipeline.models import IndicatorRecord
 
 DEFAULT_DATABASE_PATH = Path("data/world_bank.db")
+
+logger = logging.getLogger(__name__)
+
 
 
 def connect_database(
@@ -58,6 +62,10 @@ def initialize_database(
     )
     
     connection.commit()
+    
+    logger.debug(
+        "Database schema initialized."
+    )
 
 
 def save_records(
@@ -111,6 +119,11 @@ def save_records(
         records_processed += 1
 
     connection.commit()
+    
+    logger.info(
+        "Processed %d database records.",
+        records_processed,
+    )
     
     return records_processed
 
