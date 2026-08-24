@@ -142,6 +142,10 @@ pip install -e ".[dev]"
 
 ## Usage
 
+### Example Run
+
+![World Bank data pipeline CLI demonstration](docs/pipeline-demo.png)
+
 Retrieve U.S. population data from 2020 through 2024:
 
 ```bash
@@ -151,12 +155,12 @@ python -m world_bank_pipeline.cli --country USA --indicator SP.POP.TOTL --start-
 Example output:
 
 ```text
-2026-08-23 23:00:00 | INFO | world_bank_pipeline.api_client | Requesting indicator=SP.POP.TOTL country=USA years=2020-2024
-2026-08-23 23:00:01 | INFO | world_bank_pipeline.api_client | World Bank returned 5 raw records.
-2026-08-23 23:00:01 | INFO | world_bank_pipeline.database | Processed 5 database records.
+2026-08-23 23:07:34 | INFO | world_bank_pipeline.api_client | Requesting indicator=SP.POP.TOTL country=USA years=2020-2024
+2026-08-23 23:07:34 | INFO | world_bank_pipeline.api_client | World Bank returned 5 raw records.
+2026-08-23 23:07:34 | INFO | world_bank_pipeline.database | Processed 5 database records.
 
 Retrieved 5 records from the World Bank API.
-Stored 5 records in data/world_bank.db.
+Stored 5 records in data\world_bank.db.
 ```
 
 Retrieve GDP data for Canada:
