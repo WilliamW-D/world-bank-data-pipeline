@@ -1,9 +1,8 @@
 import argparse
 
-from world_bank_pipeline.api_client import (
-    WorldBankAPIError,
-    fetch_indicator,
-)
+from world_bank_pipeline.api_client import WorldBankAPIError
+from world_bank_pipeline.models import RecordValidationError
+from world_bank_pipeline.pipeline import fetch_indicator
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -50,7 +49,11 @@ def main() -> None:
             end_year=args.end_year,
         )
         
-    except WorldBankAPIError as exc:
+    except (
+        WorldBankAPIError,
+        RecordValidationError,
+        ValueError,
+    ) as exc:
         print(f"Error: {exc}")
         return
         
@@ -59,11 +62,17 @@ def main() -> None:
         return
         
     for record in records:
+        value = (
+            record.value
+            if record.value is not None
+            else "N/A"
+        )
+        
         print(
-            f"{record['country_code']} | "
-            f"{record['year']} | "
-            f"{record['indicator_code']} | "
-            f"{record['value']}"
+            f"{record.country_code} | "
+            f"{record.year} | "
+            f"{record.indicator_code} | "
+            f"{value}"
         )
 
 if __name__ == "__main__":
