@@ -1,8 +1,17 @@
 import argparse
+from pathlib import Path
 
 from world_bank_pipeline.api_client import WorldBankAPIError
+from world_bank_pipeline.database import (
+    DEFAULT_DATABASE_PATH,
+    connect_database,
+    initialize_database,
+)
 from world_bank_pipeline.models import RecordValidationError
-from world_bank_pipeline.pipeline import fetch_indicator
+from world_bank_pipeline.pipeline import (
+    fetch_indicator,
+    store_indicator_records,
+)
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -35,6 +44,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Last year to retrieve.",
     )
     
+    parser.add_argument(
+        "--database",
+        type=Path,
+        default=DEFAULT_DATABASE_PATH,
+        help=(
+            "SQLite database path. "
+            f"Default: {DEFAULT_DATABASE_PATH}"
+        ),
+    )
+    
     return parser
 
 def main() -> None:
@@ -61,19 +80,23 @@ def main() -> None:
         print("No records found.")
         return
         
-    for record in records:
-        value = (
-            record.value
-            if record.value is not None
-            else "N/A"
+    with connect_database(args.database) as connection:
+        initialize_database(connection)
+        
+        records_processed = store_indicator_records(
+            connection=connection,
+            records=records,
         )
         
-        print(
-            f"{record.country_code} | "
-            f"{record.year} | "
-            f"{record.indicator_code} | "
-            f"{value}"
-        )
+    print(
+        f"Retrieved {len(records)} records "
+        f"from the World Bank API."
+    )
+    
+    print(
+        f"Stored {records_processed} records "
+        f"in {args.database}."
+    )
 
 if __name__ == "__main__":
     main()

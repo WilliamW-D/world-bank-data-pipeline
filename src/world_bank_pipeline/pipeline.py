@@ -5,6 +5,8 @@ from world_bank_pipeline.models import (
     IndicatorRecord,
     RecordValidationError,
 )
+import sqlite3
+from world_bank_pipeline.database import save_records
 
 def normalize_records(
     raw_records: list[dict[str, Any]],
@@ -42,3 +44,15 @@ def fetch_indicator(
     )
 
     return normalize_records(raw_records)
+
+
+def store_indicator_records(
+    connection: sqlite3.Connection,
+    records: list[IndicatorRecord],
+) -> int:
+    """Store normalized indicator records in the database."""
+
+    return save_records(
+        connection=connection,
+        records=records,
+    )
